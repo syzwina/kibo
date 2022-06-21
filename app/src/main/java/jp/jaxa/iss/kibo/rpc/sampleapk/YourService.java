@@ -30,9 +30,20 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
         // move to a point
-        Point point = new Point(10.71f, -7.5f, 4.48f);
-        Quaternion quaternion = new Quaternion(0f, 0f, 0f, 1f);
-        api.moveTo(point, quaternion, false);
+        // move to a point
+        Point point = new Point(10.71000f, -7.70000f, 4.48000f);
+        Quaternion quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
+        Result result = api.moveTo(point, quaternion, false);
+
+        final int LOOP_MAX = 5;
+
+        // check result and loop while moveTo api is not succeeded
+        int loopCounter = 0;
+        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
+            // retry
+            result = api.moveTo(point, quaternion, false);
+            ++loopCounter;
+        }
 
         // report point1 arrival
         api.reportPoint1Arrival();
@@ -52,6 +63,35 @@ public class YourService extends KiboRpcService {
         /* ******************************************** */
         /* write your own code and repair the air leak! */
         /* ******************************************** */
+
+        // move to a point
+        point = new Point(11.27460f, -9.92284f, 5.29881f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        result = api.moveTo(point, quaternion, false);
+
+        // check result and loop while moveTo api is not succeeded
+        loopCounter = 0;
+        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
+            // retry
+            result = api.moveTo(point, quaternion, false);
+            ++loopCounter;
+        }
+
+
+        // report point2 arrival
+        // api.reportPoint2Arrival();
+
+        // get a camera image
+        image = api.getMatNavCam();
+
+        // irradiate the laser
+        api.laserControl(true);
+
+        // take target2 snapshots
+        api.takeTarget2Snapshot();
+
+        // turn the laser off
+        api.laserControl(false);
 
         // send mission completion
         api.reportMissionCompletion();
