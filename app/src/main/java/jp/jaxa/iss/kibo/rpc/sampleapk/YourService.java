@@ -30,7 +30,6 @@ public class YourService extends KiboRpcService {
         api.startMission();
 
         // move to a point
-        // move to a point
         Point point = new Point(10.71000f, -7.70000f, 4.48000f);
         Quaternion quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
         Result result = api.moveTo(point, quaternion, false);
@@ -64,7 +63,7 @@ public class YourService extends KiboRpcService {
         /* write your own code and repair the air leak! */
         /* ******************************************** */
 
-        // move to a point
+        // move to a p  oint
         point = new Point(11.27460f, -9.92284f, 5.29881f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         result = api.moveTo(point, quaternion, false);
