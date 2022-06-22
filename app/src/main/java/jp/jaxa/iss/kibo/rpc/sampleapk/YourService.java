@@ -28,6 +28,8 @@ public class YourService extends KiboRpcService {
     private final KeepInZone KIZ01 = new KeepInZone(10.3f, -10.2f, 4.32f, 11.55f, -6.4f, 5.57f);
     private final KeepInZone KIZ02 = new KeepInZone(9.5f, -10.5f, 4.02f, 10.5f, -9.6f, 4.8f);
 
+    private final int LOOP_MAX = 5;
+
 
     @Override
     protected void runPlan1(){
@@ -37,26 +39,11 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "start mission!");
 
 
-        final int LOOP_MAX = 5;
 
-
-        // move to a point
-        Log.i(TAG, "move to point 1");
-        Point point = new Point(10.71000f, -7.70000f, 4.48000f);
+        // POINT 1
+        Point point = new Point(10.71f, -7.9f, 4.48f);
         Quaternion quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
-        Result result = api.moveTo(point, quaternion, false);
-
-
-        // check result and loop while moveTo api is not succeeded
-        int loopCounter = 0;
-        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
-            // retry
-            result = api.moveTo(point, quaternion, false);
-            ++loopCounter;
-        }
-        if (result.hasSucceeded()) Log.i(TAG, "successfully moved to point 1");
-        else Log.i(TAG, "failed to moved to point 1");
-
+        moveBee(point, quaternion, 1);
 
         // report point1 arrival
         api.reportPoint1Arrival();
@@ -78,50 +65,21 @@ public class YourService extends KiboRpcService {
 
 
 
-        // move to a point lower than point 1
-        if (checksForKOZ(10.7f, -7.70000f, 5f)) Log.i(TAG, "point 2 is not in KOZ");
-        if (checksForKIZ(10.7f, -7.70000f, 5f)) Log.i(TAG, "point 2 is in KIZ");
-        Log.i(TAG, "move to point 2");
-        point = new Point(10.7f, -7.70000f, 5f);
+        // POINT 2 : lower than POINT 1
+        point = new Point(10.7f, -7.7f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        result = api.moveTo(point, quaternion, false);
+        moveBee(point, quaternion, 2);
 
-        // check result and loop while moveTo api is not succeeded
-        loopCounter = 0;
-        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
-            // retry
-            result = api.moveTo(point, quaternion, false);
-            ++loopCounter;
-        }
-        if (result.hasSucceeded()) Log.i(TAG, "successfully moved to point 2");
-        else Log.i(TAG, "failed to move to point 2");
-
-
-
-
-        // move to a point
-        if (checksForKOZ(10.7f, -9f, 5f)) Log.i(TAG, "point 3 is not in KOZ");
-        if (checksForKIZ(10.7f, -9f, 5f)) Log.i(TAG, "point 3 is in KIZ");
-        Log.i(TAG, "move to point 3");
-        point = new Point(10.7f, -9f, 5f);
+        // POINT 3 : move forward towards target 2
+        point = new Point(10.7f, -9.5f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        result = api.moveTo(point, quaternion, false);
-
-        // check result and loop while moveTo api is not succeeded
-        loopCounter = 0;
-        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
-            // retry
-            result = api.moveTo(point, quaternion, false);
-            ++loopCounter;
-        }
-        if (result.hasSucceeded()) Log.i(TAG, "successfully moved to point 3");
-        else Log.i(TAG, "failed to move to point 3");
-
-
+        moveBee(point, quaternion, 3);
 
         // get a camera imageMat
         imageMat = api.getMatNavCam();
-        api.saveMatImage(imageMat, "MatNavCam1.png")    ;
+        api.saveMatImage(imageMat, "nearTarget2.png");
+
+        // best not to turn lasers on when ydk if bee is pointing to the right thing
 
         // irradiate the laser
         Log.i(TAG, "turn laser on");
@@ -133,6 +91,16 @@ public class YourService extends KiboRpcService {
         // turn the laser off
         Log.i(TAG, "turn laser off");
         api.laserControl(false);
+
+        // POINT 4 : go back to POINT 2
+        point = new Point(10.7f, -7.7f, 5f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 4);
+
+        // POINT 5 : go back to STARTING POINT
+        point = new Point(10.76150f, -6.88490f, 5.31647f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 5);
 
         // send mission completion
         api.reportMissionCompletion();
@@ -154,49 +122,38 @@ public class YourService extends KiboRpcService {
 
     }
 
-    // You can write your other plan here, but it’s not run on the web simulator.
-
-//    @Override
-//    protected void runPlan2(){
-//        // write here your plan 2
-//    }
-//
-//    @Override
-//    protected void runPlan3(){
-//        // write here your plan 3
-//    }
-//
-//    // You can add your method
-//    private void moveToWrapper(double pos_x, double pos_y, double pos_z,
-//                               double qua_x, double qua_y, double qua_z,
-//                               double qua_w){
-//
-//        final Point point = new Point(pos_x, pos_y, pos_z);
-//        final Quaternion quaternion = new Quaternion((float)qua_x, (float)qua_y,
-//                                                     (float)qua_z, (float)qua_w);
-//
-//        api.moveTo(point, quaternion, true);
-//    }
-//
-//    private void relativeMoveToWrapper(double pos_x, double pos_y, double pos_z,
-//                               double qua_x, double qua_y, double qua_z,
-//                               double qua_w) {
-//
-//        final Point point = new Point(pos_x, pos_y, pos_z);
-//        final Quaternion quaternion = new Quaternion((float) qua_x, (float) qua_y,
-//                (float) qua_z, (float) qua_w);
-//
-//        api.relativeMoveTo(point, quaternion, true);
-//    }
-
-    private boolean checksForKOZ(float x, float y, float z){
+    private boolean checksForKOZ(Point point){
+        float x = (float) point.getX();
+        float y = (float) point.getY();
+        float z = (float) point.getZ();
         if (KOZ01.contains(x,y,z) || KOZ02.contains(x,y,z) || KOZ03.contains(x,y,x)) return false;
         return true;
     }
 
-    private boolean checksForKIZ(float x, float y, float z){
+    private boolean checksForKIZ(Point point){
+        float x = (float) point.getX();
+        float y = (float) point.getY();
+        float z = (float) point.getZ();
         if (KIZ01.contains(x,y,z) || KIZ02.contains(x,y,z)) return true;
         return false;
+    }
+
+    private void moveBee(Point point, Quaternion quaternion, int pointNumber){
+
+        if (checksForKOZ(point)) Log.i(TAG, "point " + pointNumber + " is not in KOZ");
+        if (checksForKIZ(point)) Log.i(TAG, "point " + pointNumber + " is in KIZ");
+        Log.i(TAG, "move to point " + pointNumber);
+        Result result = api.moveTo(point, quaternion, false);
+
+        // check result and loop while moveTo api is not succeeded
+        int loopCounter = 0;
+        while(!result.hasSucceeded() && loopCounter < LOOP_MAX){
+            // retry
+            result = api.moveTo(point, quaternion, false);
+            ++loopCounter;
+        }
+        if (result.hasSucceeded()) Log.i(TAG, "successfully moved to point " + pointNumber);
+        else Log.i(TAG, "failed to moved to point " + pointNumber);
     }
 
 }
