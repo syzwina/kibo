@@ -79,9 +79,10 @@ public class YourService extends KiboRpcService {
 
 
         // move to a point lower than point 1
-        if (checksForKOZ(8f, -7.70000f, 5f)) Log.i(TAG, "point 2 is in KOZ");
+        if (checksForKOZ(10.7f, -7.70000f, 5f)) Log.i(TAG, "point 2 is not in KOZ");
+        if (checksForKIZ(10.7f, -7.70000f, 5f)) Log.i(TAG, "point 2 is in KIZ");
         Log.i(TAG, "move to point 2");
-        point = new Point(8f, -7.70000f, 5f);
+        point = new Point(10.7f, -7.70000f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         result = api.moveTo(point, quaternion, false);
 
@@ -99,9 +100,10 @@ public class YourService extends KiboRpcService {
 
 
         // move to a point
-        if (checksForKOZ(8f, -9f, 5f)) Log.i(TAG, "point 3 is in KOZ");
+        if (checksForKOZ(10.7f, -9f, 5f)) Log.i(TAG, "point 3 is not in KOZ");
+        if (checksForKIZ(10.7f, -9f, 5f)) Log.i(TAG, "point 3 is in KIZ");
         Log.i(TAG, "move to point 3");
-        point = new Point(8f, -9f, 5f);
+        point = new Point(10.7f, -9f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         result = api.moveTo(point, quaternion, false);
 
@@ -190,6 +192,11 @@ public class YourService extends KiboRpcService {
     private boolean checksForKOZ(float x, float y, float z){
         if (KOZ01.contains(x,y,z) || KOZ02.contains(x,y,z) || KOZ03.contains(x,y,x)) return false;
         return true;
+    }
+
+    private boolean checksForKIZ(float x, float y, float z){
+        if (KIZ01.contains(x,y,z) || KIZ02.contains(x,y,z)) return true;
+        return false;
     }
 
 }
