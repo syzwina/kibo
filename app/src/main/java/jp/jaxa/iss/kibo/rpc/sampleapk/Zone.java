@@ -7,20 +7,14 @@ abstract class Zone {
     protected float x_max;
     protected float y_max;
     protected float z_max;
-    protected float length;
-    protected float width;
-    protected float height;
 
-    public Zone(float x_min, float y_min, float z_min, float x_max, float y_max, float z_max, float length, float width, float height){
+    public Zone(float x_min, float y_min, float z_min, float x_max, float y_max, float z_max){
         this.x_min = x_min;
         this.y_min = y_min;
         this.z_min = z_min;
         this.x_max = x_max;
         this.y_max = y_max;
         this.z_max = z_max;
-        this.length = length;
-        this.width = width;
-        this.height = height;
     }
 
     public boolean contains(float x, float y, float z){
