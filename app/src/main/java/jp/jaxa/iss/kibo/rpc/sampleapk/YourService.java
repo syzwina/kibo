@@ -11,7 +11,6 @@ import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
 import org.opencv.aruco.Dictionary;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.aruco.Aruco;
 
@@ -103,8 +102,8 @@ public class YourService extends KiboRpcService {
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 4);
 
-        // POINT 5 : go back to STARTING POINT
-        point = new Point(10.76150f, -6.88490f, 5.31647f);
+        // POINT 5 : go to GOAL / CREW
+        point = new Point(11.27460f, -7.89178f, 4.96538f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 5);
 
@@ -112,7 +111,7 @@ public class YourService extends KiboRpcService {
 
         Log.i(TAG, "make dictionary");
         // Dictionary dictionary = Dictionary.create(6,6);
-        Dictionary dictionary = Dictionary.get(Aruco.DICT_6X6_250);
+        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_6X6_250);
         List<Mat> corners = new ArrayList<Mat>();
         Mat ids = new Mat();
 
@@ -122,13 +121,15 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "TARGET 1 image processing");
         // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
         Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids);
-        Aruco.drawDetectedMarkers(imageMatTarget1, corners);
+        Aruco.drawDetectedMarkers(imageMatTarget1, (List<Mat>) dictionary);
+
+        api.saveMatImage(imageMatTarget1, "processedNearTarget1.png");
 
         // saving images
         for (int i=0;i<corners.size();i++) {
             api.saveMatImage(corners.get(i), "corners" + i + ".png");
         }
-        if (ids.width()!=0 || ids.height()!=0) {
+        if (ids.width()!=0 && ids.height()!=0) {
             api.saveMatImage(ids, "ids.png");
             Log.i(TAG, "saved ids image");
         }
@@ -139,34 +140,25 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "TARGET 2 image processing");
         // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
         Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids);
-        Aruco.drawDetectedMarkers(imageMatTarget2, corners);
+        Aruco.drawDetectedMarkers(imageMatTarget2, (List<Mat>) dictionary);
+
+        api.saveMatImage(imageMatTarget2, "processedNearTarget2.png");
 
         // saving images
         for (int i=0;i<corners.size();i++) {
             api.saveMatImage(corners.get(i), "corners" + i + ".png");
             Log.i(TAG, "saved corner image");
         }
-        if (ids.width()!=0 || ids.height()!=0) {
+        if (ids.width()!=0 && ids.height()!=0) {
             api.saveMatImage(ids, "ids.png");
             Log.i(TAG, "saved ids image");
         }
 
-
 //        Kinematics kinematics =  api.getRobotKinematics();
-//        kinematics.
-//        Aruco.detectMarkers();
-
-        // get/process a bitmap imageBitMap
-        // Bitmap imageBitMap = any_function();
-        // save the imageMat
-        // api.saveBitmapImage(imageBitMap, “file_name_1”);
-        // get/process a mat imageMat
-        // imageMat = any_function_mat();
-        // save the imageMat
-        // api.saveMatImage(img, “file_name_2”);
 
         // send mission completion
         api.reportMissionCompletion();
+        Log.i(TAG, "reported mission completion");
 
     }
 
@@ -203,7 +195,7 @@ public class YourService extends KiboRpcService {
             ++loopCounter;
         }
         if (result.hasSucceeded()) Log.i(TAG, "successfully moved to point " + pointNumber);
-        else Log.e(TAG, "failed to moved to point " + pointNumber);
+        else Log.e(TAG, "failed to move to point " + pointNumber);
     }
 
 }
