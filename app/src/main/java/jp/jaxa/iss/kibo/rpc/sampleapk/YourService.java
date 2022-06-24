@@ -10,10 +10,14 @@ import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
+import org.opencv.android.Utils;
+import org.opencv.aruco.Board;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.Mat;
 import org.opencv.aruco.Aruco;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,62 +107,85 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "turn laser off");
         api.laserControl(false);
 
-        // POINT 5 : go back to POINT 2
-        point = new Point(10.7f, -7.7f, 5f);
+        // POINT 5 : move back to previous position
+        point = new Point(10.7f, -9.5f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 5);
 
-        // POINT 6 : go to GOAL / CREW
-        point = new Point(11.27460f, -7.89178f, 4.96538f);
+        // POINT 6 : go back to POINT 2
+        point = new Point(10.7f, -7.7f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 6);
+
+        // POINT 7 : go to GOAL / CREW
+        point = new Point(11.27460f, -7.89178f, 4.96538f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 7);
 
 
 
         Log.i(TAG, "make dictionary");
-        // Dictionary dictionary = Dictionary.create(6,6);
         Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
         List<Mat> corners = new ArrayList<Mat>();
-        Mat ids = new Mat();
+        Mat ids = new Mat(10, 10, 10, new Scalar( 150, 150, 150 ));
+        Mat cameraMatrix = new Mat();
+        Mat distCoeffs = new Mat();
+        List<Mat> rvecs = new ArrayList<Mat>();
+        List<Mat> tvecs = new ArrayList<Mat>();
+        Mat counter = new Mat();
+        Size imageSize = new Size(5, 5);
 
         DetectorParameters detectorParameters = DetectorParameters.create();
 
+
+
         // TARGET 1 image processing
         Log.i(TAG, "TARGET 1 image processing");
-        // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
         Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids, detectorParameters);
-        Aruco.drawDetectedMarkers(imageMatTarget1, corners);
+        Aruco.drawDetectedMarkers(imageMatTarget1, corners, ids, new Scalar( 150, 150, 150 ));
+
+        Board board = Board.create(corners, dictionary, ids);
+        Aruco.calibrateCameraAruco(corners, ids, counter, board, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs);
+        Aruco.estimatePoseSingleMarkers(corners, 5, cameraMatrix, distCoeffs, rvecs.get(0), tvecs.get(0));
 
         api.saveMatImage(imageMatTarget1, "processedNearTarget1.png");
 
         // saving images
-        for (int i=0;i<corners.size();i++) {
-            api.saveMatImage(corners.get(i), "corners" + i + ".png");
-        }
-        if (ids.width()!=0 && ids.height()!=0) {
-            api.saveMatImage(ids, "ids.png");
-            Log.i(TAG, "saved ids image");
-        }
+//        for (int i=0;i<corners.size();i++) {
+//            Bitmap image = null;
+//            Utils.matToBitmap(corners.get(i), image);
+//            api.saveBitmapImage(image, "corners" + i + ".png");
+//            Log.i(TAG, "saved corner image");
+//        }
+//        if (ids.width()!=0 && ids.height()!=0) {
+//            Bitmap image = null;
+//            Utils.matToBitmap(ids, image);
+//            api.saveBitmapImage(image, "ids_TARGET2.png");
+//            Log.i(TAG, "saved ids image");
+//        }
 
 
 
         // TARGET 2 image processing
         Log.i(TAG, "TARGET 2 image processing");
-        // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
         Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids, detectorParameters);
-        Aruco.drawDetectedMarkers(imageMatTarget2, corners);
+        Aruco.drawDetectedMarkers(imageMatTarget2, corners, ids, new Scalar( 150, 150, 150 ));
 
         api.saveMatImage(imageMatTarget2, "processedNearTarget2.png");
 
         // saving images
-        for (int i=0;i<corners.size();i++) {
-            api.saveMatImage(corners.get(i), "corners" + i + ".png");
-            Log.i(TAG, "saved corner image");
-        }
-        if (ids.width()!=0 && ids.height()!=0) {
-            api.saveMatImage(ids, "ids.png");
-            Log.i(TAG, "saved ids image");
-        }
+//        for (int i=0;i<corners.size();i++) {
+//            Bitmap image = null;
+//            Utils.matToBitmap(corners.get(i), image);
+//            api.saveBitmapImage(image, "corners" + i + ".png");
+//            Log.i(TAG, "saved corner image");
+//        }
+//        if (ids.width()!=0 && ids.height()!=0) {
+//            Bitmap image = null;
+//            Utils.matToBitmap(ids, image);
+//            api.saveBitmapImage(image, "ids_TARGET2.png");
+//            Log.i(TAG, "saved ids image");
+//        }
 
         // Kinematics kinematics =  api.getRobotKinematics();
 
