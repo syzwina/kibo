@@ -10,6 +10,7 @@ import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 
+import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.Mat;
 import org.opencv.aruco.Aruco;
@@ -115,13 +116,13 @@ public class YourService extends KiboRpcService {
         List<Mat> corners = new ArrayList<Mat>();
         Mat ids = new Mat();
 
-
+        DetectorParameters detectorParameters = DetectorParameters.create();
 
         // TARGET 1 image processing
         Log.i(TAG, "TARGET 1 image processing");
         // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
-        Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids);
-        Aruco.drawDetectedMarkers(imageMatTarget1, (List<Mat>) dictionary);
+        Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids, detectorParameters);
+        Aruco.drawDetectedMarkers(imageMatTarget1, corners);
 
         api.saveMatImage(imageMatTarget1, "processedNearTarget1.png");
 
@@ -139,8 +140,8 @@ public class YourService extends KiboRpcService {
         // TARGET 2 image processing
         Log.i(TAG, "TARGET 2 image processing");
         // Aruco.detectMarkers(Mat image, Dictionary dictionary, List<Mat> corners, Mat ids)
-        Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids);
-        Aruco.drawDetectedMarkers(imageMatTarget2, (List<Mat>) dictionary);
+        Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids, detectorParameters);
+        Aruco.drawDetectedMarkers(imageMatTarget2, corners);
 
         api.saveMatImage(imageMatTarget2, "processedNearTarget2.png");
 
