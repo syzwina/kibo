@@ -81,6 +81,11 @@ public class YourService extends KiboRpcService {
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 3);
 
+        // POINT 4 : move forward towards 'POINT 2 - as given in rulebook'
+        point = new Point(11.27460f, -9.92284f, 5.29881f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 4);
+
         // get a camera imageMat
         Mat imageMatTarget2 = api.getMatNavCam();
         api.saveMatImage(imageMatTarget2, "nearTarget2.png");
@@ -98,21 +103,21 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "turn laser off");
         api.laserControl(false);
 
-        // POINT 4 : go back to POINT 2
+        // POINT 5 : go back to POINT 2
         point = new Point(10.7f, -7.7f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        moveBee(point, quaternion, 4);
+        moveBee(point, quaternion, 5);
 
-        // POINT 5 : go to GOAL / CREW
+        // POINT 6 : go to GOAL / CREW
         point = new Point(11.27460f, -7.89178f, 4.96538f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        moveBee(point, quaternion, 5);
+        moveBee(point, quaternion, 6);
 
 
 
         Log.i(TAG, "make dictionary");
         // Dictionary dictionary = Dictionary.create(6,6);
-        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_6X6_250);
+        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
         List<Mat> corners = new ArrayList<Mat>();
         Mat ids = new Mat();
 
@@ -155,7 +160,7 @@ public class YourService extends KiboRpcService {
             Log.i(TAG, "saved ids image");
         }
 
-//        Kinematics kinematics =  api.getRobotKinematics();
+        // Kinematics kinematics =  api.getRobotKinematics();
 
         // send mission completion
         api.reportMissionCompletion();
