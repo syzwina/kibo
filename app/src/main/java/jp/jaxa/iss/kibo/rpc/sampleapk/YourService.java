@@ -36,15 +36,33 @@ public class YourService extends KiboRpcService {
     private final KeepInZone KIZ01 = new KeepInZone(10.3f, -10.2f, 4.32f, 11.55f, -6.4f, 5.57f);
     private final KeepInZone KIZ02 = new KeepInZone(9.5f, -10.5f, 4.02f, 10.5f, -9.6f, 4.8f);
 
+    private int current_target = 0;
+
 
     @Override
     protected void runPlan1(){
+
+        Log.i(TAG, "make dictionary");
+        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+        List<Mat> corners = new ArrayList<Mat>();
+
+        Mat ids = new Mat(1, 4, 1, new Scalar( 0, 150, 250 ));
+
+        Mat cameraMatrix = new Mat();
+        Mat distCoeffs = new Mat();
+        List<Mat> rvecs = new ArrayList<Mat>();
+        List<Mat> tvecs = new ArrayList<Mat>();
+        List objPoints = new ArrayList();
+        Mat counter = new Mat();
+        Size imageSize = new Size(5, 5);
+
+        DetectorParameters detectorParameters = DetectorParameters.create();
 
         // the mission starts
         api.startMission();
         Log.i(TAG, "start mission!");
 
-
+        current_target = 1;
 
         // POINT 1
         Point point = new Point(10.71f, -7.9f, 4.48f);
@@ -59,6 +77,28 @@ public class YourService extends KiboRpcService {
         Mat imageMatTarget1 = api.getMatNavCam();
         api.saveMatImage(imageMatTarget1, "nearTarget1.png");
 
+
+
+        // TARGET 1 image processing
+        Log.i(TAG, "TARGET 1 image processing");
+        Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids, detectorParameters);
+        Aruco.drawDetectedMarkers(imageMatTarget1, corners, ids, new Scalar( 0, 150, 250 ));
+
+        api.saveMatImage(imageMatTarget1, "processedNearTarget1.png");
+        Log.i("image length", "height: " + imageMatTarget1.height() + ", width: " + imageMatTarget1.width());
+
+        moveCloserToArucoMarker(inspectCorners(corners));
+
+        Log.i(TAG, "make board");
+        // Board board = Board.create(objPoints, dictionary, ids);
+        Log.i(TAG, "made board");
+        // Aruco.calibrateCameraAruco(corners, ids, counter, board, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs);
+        // Aruco.estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distCoeffs, rvecs.get(0), tvecs.get(0));
+
+        corners.clear();
+
+
+
         // irradiate the laser
         Log.i(TAG, "turn laser on");
         api.laserControl(true);
@@ -71,7 +111,7 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "turn laser off");
         api.laserControl(false);
 
-
+        current_target = 2;
 
         // POINT 2 : lower than POINT 1
         point = new Point(10.7f, -7.7f, 5f);
@@ -92,6 +132,20 @@ public class YourService extends KiboRpcService {
         // get a camera imageMat
         Mat imageMatTarget2 = api.getMatNavCam();
         api.saveMatImage(imageMatTarget2, "nearTarget2.png");
+
+
+
+        // TARGET 2 image processing
+        Log.i(TAG, "TARGET 2 image processing");
+        Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids, detectorParameters);
+        Aruco.drawDetectedMarkers(imageMatTarget2, corners, ids, new Scalar( 0, 150, 250 ));
+
+        api.saveMatImage(imageMatTarget2, "processedNearTarget2.png");
+        Log.i("image length", "height: " + imageMatTarget2.height() + ", width: " + imageMatTarget2.width());
+
+        moveCloserToArucoMarker(inspectCorners(corners));
+
+
 
         // best not to turn lasers on when ydk if bee is pointing to the right thing
 
@@ -121,57 +175,6 @@ public class YourService extends KiboRpcService {
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 7);
 
-
-
-        Log.i(TAG, "make dictionary");
-        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-        List<Mat> corners = new ArrayList<Mat>();
-
-        Mat ids = new Mat(1, 4, 1, new Scalar( 0, 150, 250 ));
-
-        Mat cameraMatrix = new Mat();
-        Mat distCoeffs = new Mat();
-        List<Mat> rvecs = new ArrayList<Mat>();
-        List<Mat> tvecs = new ArrayList<Mat>();
-        List objPoints = new ArrayList();
-        Mat counter = new Mat();
-        Size imageSize = new Size(5, 5);
-
-        DetectorParameters detectorParameters = DetectorParameters.create();
-
-
-
-        // TARGET 1 image processing
-        Log.i(TAG, "TARGET 1 image processing");
-        Aruco.detectMarkers(imageMatTarget1, dictionary, corners, ids, detectorParameters);
-        Aruco.drawDetectedMarkers(imageMatTarget1, corners, ids, new Scalar( 0, 150, 250 ));
-
-        api.saveMatImage(imageMatTarget1, "processedNearTarget1.png");
-        Log.i("image length", "height: " + imageMatTarget1.height() + ", width: " + imageMatTarget1.width());
-
-        moveCloserToArucoMarker(inspectCorners(corners));
-
-        Log.i(TAG, "make board");
-        // Board board = Board.create(objPoints, dictionary, ids);
-        Log.i(TAG, "made board");
-        // Aruco.calibrateCameraAruco(corners, ids, counter, board, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs);
-        // Aruco.estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distCoeffs, rvecs.get(0), tvecs.get(0));
-
-        corners.clear();
-
-        // TARGET 2 image processing
-        Log.i(TAG, "TARGET 2 image processing");
-        Aruco.detectMarkers(imageMatTarget2, dictionary, corners, ids, detectorParameters);
-        Aruco.drawDetectedMarkers(imageMatTarget2, corners, ids, new Scalar( 0, 150, 250 ));
-
-        api.saveMatImage(imageMatTarget2, "processedNearTarget2.png");
-        Log.i("image length", "height: " + imageMatTarget2.height() + ", width: " + imageMatTarget2.width());
-
-        moveCloserToArucoMarker(inspectCorners(corners));
-
-        //Kinematics kinematics =  api.getRobotKinematics();
-        // kinematics.getOrientation();
-        // kinematics.getPosition();
 
 
         // send mission completion
@@ -259,21 +262,65 @@ public class YourService extends KiboRpcService {
         double x_difference = middle_x - aruco_middle_x;
         double y_difference = middle_y - aruco_middle_y;
 
-        while (counter < LOOP_MAX) {
-            if (x_difference > 30) {
-                moveBee(); // move to right
+        Kinematics kinematics;
+        Quaternion quaternion;
+        Point point;
+
+        if (current_target = 1) {
+            while (counter < LOOP_MAX) {
+                kinematics = api.getRobotKinematics();
+                quaternion = kinematics.getOrientation();
+                point = kinematics.getPosition();
+
+                if (x_difference > 30) {
+                    point.getX();
+                    moveBee(point, quaternion, counter); // move to right in y-axis
+                }
+                if (x_difference < -30) {
+                    moveBee(point, quaternion, counter); // move to left in y-axis
+                }
             }
-            if (x_difference < -30) {
-                moveBee(); // move to left
+
+            while (counter < LOOP_MAX) {
+                kinematics = api.getRobotKinematics();
+                quaternion = kinematics.getOrientation();
+                point = kinematics.getPosition();
+
+                if (y_difference > 30) {
+                    moveBee(point, quaternion, counter); // move to down in x-axis
+                }
+                if (y_difference < -30) {
+                    moveBee(point, quaternion, counter); // move to up in x-axis
+                }
             }
         }
 
-        while (counter < LOOP_MAX) {
-            if (y_difference > 30) {
-                moveBee(); // move to right
+        if (current_target = 2) {
+            while (counter < LOOP_MAX) {
+                kinematics = api.getRobotKinematics();
+                quaternion = kinematics.getOrientation();
+                point = kinematics.getPosition();
+
+                if (x_difference > 30) {
+                    point.getX();
+                    moveBee(point, quaternion, counter); // move to right in x-axis
+                }
+                if (x_difference < -30) {
+                    moveBee(point, quaternion, counter); // move to left in x-axis
+                }
             }
-            if (y_difference < -30) {
-                moveBee(); // move to left
+
+            while (counter < LOOP_MAX) {
+                kinematics = api.getRobotKinematics();
+                quaternion = kinematics.getOrientation();
+                point = kinematics.getPosition();
+
+                if (y_difference > 30) {
+                    moveBee(point, quaternion, counter); // move to down in z-axis
+                }
+                if (y_difference < -30) {
+                    moveBee(point, quaternion, counter); // move to up in z-axis
+                }
             }
         }
 
