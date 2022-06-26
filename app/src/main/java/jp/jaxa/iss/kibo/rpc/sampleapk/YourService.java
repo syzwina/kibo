@@ -57,17 +57,21 @@ public class YourService extends KiboRpcService {
 
         // POINT 1
         Point point = new Point(10.71f, -7.9f, 4.48f);
-        // Point point = new Point(10.3f, -7.3f, 4.48f); tested with this, but failed
         Quaternion quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
         moveBee(point, quaternion, 1);
 
         // report point1 arrival
         api.reportPoint1Arrival();
 
-        int counter = 10;
+        // POINT 2 : move closer to aruco markers
+        point = new Point(10.71f, -7.9f, 4.29f);
+        quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
+        moveBee(point, quaternion, 2);
+
+        int counter = 15;
         while (counter > 0) {
             imageProcessing(dictionary, corners, detectorParameters, ids);
-            moveCloserToArucoMarker(inspectCorners(corners), counter/10);
+            moveCloserToArucoMarker(inspectCorners(corners), counter/15);
             corners.clear();
             counter--;
         }
@@ -87,35 +91,32 @@ public class YourService extends KiboRpcService {
 
         current_target = 2;
 
-        // POINT 2 : lower than POINT 1
+        // POINT 3 : lower than POINT 1
         point = new Point(10.7f, -7.7f, 5f);
-        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        moveBee(point, quaternion, 2);
-
-        // POINT 3 : move forward towards target 2
-        point = new Point(10.7f, -9.5f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 3);
 
-        // POINT 4 : move forward towards 'POINT 2 - as given in rulebook'
-        point = new Point(11.27460f, -9.92284f, 5.29881f);
-        // point = new Point(11.4f, -9.92284f, 5.29881f); tested with this but failed?
+        // POINT 4 : move forward towards target 2
+        point = new Point(10.7f, -9.5f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 4);
 
+        // POINT 5 : move forward towards 'POINT 2 - as given in rulebook'
+        point = new Point(11.27460f, -10.1f, 5.29881f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 5);
 
 
-        counter = 10;
+
+        counter = 20;
         while (counter > 0) {
             imageProcessing(dictionary, corners, detectorParameters, ids);
-            moveCloserToArucoMarker(inspectCorners(corners), counter/10);
+            moveCloserToArucoMarker(inspectCorners(corners), counter/20);
             corners.clear();
             counter--;
         }
 
 
-
-        // best not to turn lasers on when ydk if bee is pointing to the right thing
 
         // irradiate the laser
         Log.i(TAG, "turn laser on");
@@ -128,20 +129,20 @@ public class YourService extends KiboRpcService {
         Log.i(TAG, "turn laser off");
         api.laserControl(false);
 
-        // POINT 5 : move back to previous position
+        // POINT 6 : move back to previous position
         point = new Point(10.7f, -9.5f, 5f);
-        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
-        moveBee(point, quaternion, 5);
-
-        // POINT 6 : go back to POINT 2
-        point = new Point(10.7f, -7.7f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 6);
 
-        // POINT 7 : go to GOAL / CREW
-        point = new Point(11.27460f, -7.89178f, 4.96538f);
+        // POINT 7 : go back to POINT 2
+        point = new Point(10.7f, -7.7f, 5f);
         quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
         moveBee(point, quaternion, 7);
+
+        // POINT 8 : go to GOAL / CREW
+        point = new Point(11.27460f, -7.89178f, 4.96538f);
+        quaternion = new Quaternion(0f, 0f, -0.707f, 0.707f);
+        moveBee(point, quaternion, 8);
 
 
 
@@ -287,11 +288,11 @@ public class YourService extends KiboRpcService {
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
-                if (y_difference < -30) {
+                if (y_difference > 30) {
                     new_point = new Point(point.getX(), point.getY(), point.getZ() + 0.1 * accuracy);
                     moveBee(new_point, quaternion, 0); // move down in z-axis
                 }
-                else if (y_difference > 30) {
+                else if (y_difference < -30) {
                     new_point = new Point(point.getX(), point.getY(), point.getZ() - 0.1 * accuracy);
                     moveBee(new_point, quaternion, 0); // move up in z-axis
                 }
