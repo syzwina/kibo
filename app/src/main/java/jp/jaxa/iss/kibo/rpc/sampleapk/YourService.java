@@ -265,61 +265,82 @@ public class YourService extends KiboRpcService {
         Kinematics kinematics;
         Quaternion quaternion;
         Point point;
+        Point new_point;
 
-        if (current_target = 1) {
+        if (current_target == 1) {
             while (counter < LOOP_MAX) {
+
+                counter++;
                 kinematics = api.getRobotKinematics();
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
                 if (x_difference > 30) {
-                    point.getX();
-                    moveBee(point, quaternion, counter); // move to right in y-axis
+                    new_point = new Point(point.getX(), point.getY() - 0.2, point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to right in y-axis
                 }
                 if (x_difference < -30) {
-                    moveBee(point, quaternion, counter); // move to left in y-axis
+                    new_point = new Point(point.getX(), point.getY() + 0.2, point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to left in y-axis
                 }
             }
 
+            counter = 0;
+
             while (counter < LOOP_MAX) {
+
+                counter++;
                 kinematics = api.getRobotKinematics();
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
                 if (y_difference > 30) {
-                    moveBee(point, quaternion, counter); // move to down in x-axis
+                    new_point = new Point(point.getX() + 0.2, point.getY(), point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to down in x-axis
                 }
                 if (y_difference < -30) {
-                    moveBee(point, quaternion, counter); // move to up in x-axis
+                    new_point = new Point(point.getX() - 0.2, point.getY(), point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to up in x-axis
                 }
             }
         }
 
-        if (current_target = 2) {
+        counter = 0;
+
+        if (current_target == 2) {
             while (counter < LOOP_MAX) {
+
+                counter ++;
                 kinematics = api.getRobotKinematics();
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
                 if (x_difference > 30) {
-                    point.getX();
-                    moveBee(point, quaternion, counter); // move to right in x-axis
+                    new_point = new Point(point.getX() + 0.2, point.getY(), point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to right in x-axis
                 }
                 if (x_difference < -30) {
-                    moveBee(point, quaternion, counter); // move to left in x-axis
+                    new_point = new Point(point.getX() - 0.2, point.getY(), point.getZ());
+                    moveBee(new_point, quaternion, counter); // move to left in x-axis
                 }
             }
 
+            counter = 0;
+
             while (counter < LOOP_MAX) {
+
+                counter++;
                 kinematics = api.getRobotKinematics();
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
                 if (y_difference > 30) {
-                    moveBee(point, quaternion, counter); // move to down in z-axis
+                    new_point = new Point(point.getX(), point.getY(), point.getZ() + 0.1);
+                    moveBee(new_point, quaternion, counter); // move to down in z-axis
                 }
                 if (y_difference < -30) {
-                    moveBee(point, quaternion, counter); // move to up in z-axis
+                    new_point = new Point(point.getX(), point.getY(), point.getZ() - 0.1);
+                    moveBee(new_point, quaternion, counter); // move to up in z-axis
                 }
             }
         }
