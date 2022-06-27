@@ -70,13 +70,18 @@ public class YourService extends KiboRpcService {
         quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
         moveBee(point, quaternion, 2);
 
-        int counter = 20;
+        int counter = 10;
         while (counter > 0) {
             imageProcessing(dictionary, corners, detectorParameters, ids);
             moveCloserToArucoMarker(inspectCorners(corners), counter/20);
             corners.clear();
             counter--;
         }
+        Kinematics kinematics = api.getRobotKinematics();
+        quaternion = kinematics.getOrientation();
+        point = kinematics.getPosition();
+        point = new Point(point.getX() + 0.005, point.getY() - 0.01, 4.34f);
+        moveBee(point, quaternion, 0); // adjust to accommodate laser position
 
 
 
@@ -111,13 +116,18 @@ public class YourService extends KiboRpcService {
 
 
 
-        counter = 20;
+        counter = 15;
         while (counter > 0) {
             imageProcessing(dictionary, corners, detectorParameters, ids);
             moveCloserToArucoMarker(inspectCorners(corners), counter/20);
             corners.clear();
             counter--;
         }
+        kinematics = api.getRobotKinematics();
+        quaternion = kinematics.getOrientation();
+        point = kinematics.getPosition();
+        point = new Point(point.getX() - 0.01, -10.1f, point.getZ());
+        moveBee(point, quaternion, 0); // adjust to accommodate laser position
 
 
 
@@ -236,6 +246,20 @@ public class YourService extends KiboRpcService {
         Kinematics kinematics;
         Quaternion quaternion;
 
+        double x_magnitude = 0;
+        double y_magnitude = 0;
+
+        if (x_difference > 10 || x_difference < -10) x_magnitude = 0.005;
+        if (x_difference > 30 || x_difference < -30) x_magnitude = 0.025;
+        if (x_difference > 40 || x_difference < -40) x_magnitude = 0.05;
+        if (x_difference > 50 || x_difference < -50) x_magnitude = 0.1;
+
+        if (y_difference > 10 || y_difference < -10) y_magnitude = 0.005;
+        if (y_difference > 30 || y_difference < -30) y_magnitude = 0.025;
+        if (y_difference > 50 || y_difference < -50) y_magnitude = 0.05;
+
+
+
         if (current_target == 1) {
 
                 kinematics = api.getRobotKinematics();
@@ -243,11 +267,11 @@ public class YourService extends KiboRpcService {
                 point = kinematics.getPosition();
 
                 if (x_difference < -10) {
-                    point = new Point(point.getX(), point.getY() + 0.2 * accuracy, 4.34f);
+                    point = new Point(point.getX(), point.getY() + x_magnitude, 4.34f);
                     moveBee(point, quaternion, 0); // move to right in y-axis
                 }
                 else if (x_difference > 10) {
-                    point = new Point(point.getX(), point.getY() - 0.2 * accuracy, 4.34f);
+                    point = new Point(point.getX(), point.getY() - x_magnitude, 4.34f);
                     moveBee(point, quaternion, 0); // move to left in y-axis
                 }
 
@@ -258,11 +282,11 @@ public class YourService extends KiboRpcService {
                 point = kinematics.getPosition();
 
                 if (y_difference < -10) {
-                    point = new Point(point.getX() + 0.1 * accuracy, point.getY(), 4.34f);
+                    point = new Point(point.getX() + y_magnitude, point.getY(), 4.34f);
                     moveBee(point, quaternion, 0); // move down in x-axis
                 }
                 else if (y_difference > 10) {
-                    point = new Point(point.getX() - 0.1 * accuracy, point.getY(), 4.34f);
+                    point = new Point(point.getX() - y_magnitude, point.getY(), 4.34f);
                     moveBee(point, quaternion, 0); // move up in x-axis
                 }
         }
@@ -275,11 +299,11 @@ public class YourService extends KiboRpcService {
                 point = kinematics.getPosition();
 
                 if (x_difference < -10) {
-                    point = new Point(point.getX() + 0.1 * accuracy - 0.025, -10.1f, point.getZ());
+                    point = new Point(point.getX() + x_magnitude, -10.1f, point.getZ());
                     moveBee(point, quaternion, 0); // move to right in x-axis
                 }
                 else if (x_difference > 10) {
-                    point = new Point(point.getX() - 0.1 * accuracy, -10.1f, point.getZ());
+                    point = new Point(point.getX() - x_magnitude, -10.1f, point.getZ());
                     moveBee(point, quaternion, 0); // move to left in x-axis
                 }
 
@@ -291,11 +315,11 @@ public class YourService extends KiboRpcService {
                 point = kinematics.getPosition();
 
                 if (y_difference < -10) {
-                    point = new Point(point.getX(), -10.1f, point.getZ() + 0.1 * accuracy);
+                    point = new Point(point.getX(), -10.1f, point.getZ() + y_magnitude);
                     moveBee(point, quaternion, 0); // move down in z-axis
                 }
                 else if (y_difference > 10) {
-                    point = new Point(point.getX(), -10.1f, point.getZ() - 0.1 * accuracy + 0.025);
+                    point = new Point(point.getX(), -10.1f, point.getZ() - y_magnitude);
                     moveBee(point, quaternion, 0); // move up in z-axis
                 }
         }
