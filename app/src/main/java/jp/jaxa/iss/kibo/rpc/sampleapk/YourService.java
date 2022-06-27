@@ -37,6 +37,8 @@ public class YourService extends KiboRpcService {
     private final KeepInZone KIZ02 = new KeepInZone(9.5f, -10.5f, 4.02f, 10.5f, -9.6f, 4.8f);
 
     private int current_target = 0;
+    private Point point;
+    private Quaternion quaternion;
 
 
     @Override
@@ -56,25 +58,26 @@ public class YourService extends KiboRpcService {
         current_target = 1;
 
         // POINT 1
-        Point point = new Point(10.71f, -7.9f, 4.48f);
-        Quaternion quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
+        point = new Point(10.71f, -7.9f, 4.48f);
+        quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
         moveBee(point, quaternion, 1);
 
         // report point1 arrival
         api.reportPoint1Arrival();
 
         // POINT 2 : move closer to aruco markers
-        point = new Point(10.71f, -7.9f, 4.29f);
+        point = new Point(10.71f, -7.9f, 4.34f);
         quaternion = new Quaternion(0f, 0.707f, 0f, 0.707f);
         moveBee(point, quaternion, 2);
 
-        int counter = 15;
+        int counter = 20;
         while (counter > 0) {
             imageProcessing(dictionary, corners, detectorParameters, ids);
-            moveCloserToArucoMarker(inspectCorners(corners), counter/15);
+            moveCloserToArucoMarker(inspectCorners(corners), counter/20);
             corners.clear();
             counter--;
         }
+
 
 
         // irradiate the laser
@@ -204,10 +207,10 @@ public class YourService extends KiboRpcService {
         for (int corner=0;corner<corners.size();corner++) {
             size = corners.get(corner).size();
             for (int j = 0; j < size.width; j++) {
-                if (corner == 0 && j == 0) bottomleft = corners.get(corner).get(0, j);
+                if (corner == 0 && j == 3) bottomleft = corners.get(corner).get(0, j);
                 if (corner == 1 && j == 2) bottomright = corners.get(corner).get(0, j);
                 if (corner == 2 && j == 0) topleft = corners.get(corner).get(0, j);
-                if (corner == 3 && j == 2) topright = corners.get(corner).get(0, j);
+                if (corner == 3 && j == 1) topright = corners.get(corner).get(0, j);
             }
         }
 
@@ -232,8 +235,6 @@ public class YourService extends KiboRpcService {
 
         Kinematics kinematics;
         Quaternion quaternion;
-        Point point;
-        Point new_point;
 
         if (current_target == 1) {
 
@@ -241,13 +242,13 @@ public class YourService extends KiboRpcService {
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
-                if (x_difference < -30) {
-                    new_point = new Point(point.getX(), point.getY() + 0.2 * accuracy, point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to right in y-axis
+                if (x_difference < -10) {
+                    point = new Point(point.getX(), point.getY() + 0.2 * accuracy, 4.34f);
+                    moveBee(point, quaternion, 0); // move to right in y-axis
                 }
-                else if (x_difference > 30) {
-                    new_point = new Point(point.getX(), point.getY() - 0.2 * accuracy, point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to left in y-axis
+                else if (x_difference > 10) {
+                    point = new Point(point.getX(), point.getY() - 0.2 * accuracy, 4.34f);
+                    moveBee(point, quaternion, 0); // move to left in y-axis
                 }
 
 
@@ -256,13 +257,13 @@ public class YourService extends KiboRpcService {
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
-                if (y_difference <  -30) {
-                    new_point = new Point(point.getX() + 0.2 * accuracy, point.getY(), point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to down in x-axis
+                if (y_difference < -10) {
+                    point = new Point(point.getX() + 0.1 * accuracy, point.getY(), 4.34f);
+                    moveBee(point, quaternion, 0); // move down in x-axis
                 }
-                else if (y_difference > 30) {
-                    new_point = new Point(point.getX() - 0.2 * accuracy, point.getY(), point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to up in x-axis
+                else if (y_difference > 10) {
+                    point = new Point(point.getX() - 0.1 * accuracy, point.getY(), 4.34f);
+                    moveBee(point, quaternion, 0); // move up in x-axis
                 }
         }
 
@@ -273,14 +274,15 @@ public class YourService extends KiboRpcService {
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
-                if (x_difference < -30) {
-                    new_point = new Point(point.getX() + 0.2 * accuracy, point.getY(), point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to right in x-axis
+                if (x_difference < -10) {
+                    point = new Point(point.getX() + 0.1 * accuracy - 0.025, -10.1f, point.getZ());
+                    moveBee(point, quaternion, 0); // move to right in x-axis
                 }
-                else if (x_difference > 30) {
-                    new_point = new Point(point.getX() - 0.2 * accuracy, point.getY(), point.getZ());
-                    moveBee(new_point, quaternion, 0); // move to left in x-axis
+                else if (x_difference > 10) {
+                    point = new Point(point.getX() - 0.1 * accuracy, -10.1f, point.getZ());
+                    moveBee(point, quaternion, 0); // move to left in x-axis
                 }
+
 
 
 
@@ -288,13 +290,13 @@ public class YourService extends KiboRpcService {
                 quaternion = kinematics.getOrientation();
                 point = kinematics.getPosition();
 
-                if (y_difference > 30) {
-                    new_point = new Point(point.getX(), point.getY(), point.getZ() + 0.1 * accuracy);
-                    moveBee(new_point, quaternion, 0); // move down in z-axis
+                if (y_difference < -10) {
+                    point = new Point(point.getX(), -10.1f, point.getZ() + 0.1 * accuracy);
+                    moveBee(point, quaternion, 0); // move down in z-axis
                 }
-                else if (y_difference < -30) {
-                    new_point = new Point(point.getX(), point.getY(), point.getZ() - 0.1 * accuracy);
-                    moveBee(new_point, quaternion, 0); // move up in z-axis
+                else if (y_difference > 10) {
+                    point = new Point(point.getX(), -10.1f, point.getZ() - 0.1 * accuracy + 0.025);
+                    moveBee(point, quaternion, 0); // move up in z-axis
                 }
         }
 
@@ -303,7 +305,6 @@ public class YourService extends KiboRpcService {
     private void imageProcessing(Dictionary dictionary, List<Mat> corners, DetectorParameters detectorParameters, Mat ids) {
 
         Mat image = api.getMatNavCam();
-        image = api.getMatNavCam();
         api.saveMatImage(image, "nearTarget" + current_target + ".png");
 
 
